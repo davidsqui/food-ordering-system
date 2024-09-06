@@ -15,7 +15,9 @@ import com.food.ordering.system.restaurant.service.domain.valueobject.OrderAppro
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import org.springframework.stereotype.Component;
 
+@Component
 public class RestaurantDataAccessMapper {
 
   public List<UUID> restaurantToRestaurantProducts(Restaurant restaurant) {

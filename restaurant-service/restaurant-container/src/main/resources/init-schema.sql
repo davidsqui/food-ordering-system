@@ -6,20 +6,22 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 DROP TABLE IF EXISTS restaurant.restaurants CASCADE;
 
-CREATE TABLE restaurant.restaurants (
+CREATE TABLE restaurant.restaurants
+(
     id uuid NOT NULL,
-    name CHARACTER VARYING COLLATE pg.catalog."default" NOT NULL,
-    active BOOLEAN NOT NULL,
+    name character varying COLLATE pg_catalog."default" NOT NULL,
+    active boolean NOT NULL,
     CONSTRAINT restaurants_pkey PRIMARY KEY (id)
 );
 
 DROP TYPE IF EXISTS approval_status;
 
-CREATE TYPE approval_status AS ENUM ('APPROVED','REJECTED');
+CREATE TYPE approval_status AS ENUM ('APPROVED', 'REJECTED');
 
 DROP TABLE IF EXISTS restaurant.order_approval CASCADE;
 
-CREATE TABLE restaurant.order_approval (
+CREATE TABLE restaurant.order_approval
+(
     id uuid NOT NULL,
     restaurant_id uuid NOT NULL,
     order_id uuid NOT NULL,
@@ -29,17 +31,19 @@ CREATE TABLE restaurant.order_approval (
 
 DROP TABLE IF EXISTS restaurant.products CASCADE;
 
-CREATE TABLE restaurant.products (
+CREATE TABLE restaurant.products
+(
     id uuid NOT NULL,
-    name CHARACTER VARYING COLLATE pg.catalog."default" NOT NULL,
-    price NUMERIC(10,2) NOT NULL,
-    available BOOLEAN NOT NULL,
+    name character varying COLLATE pg_catalog."default" NOT NULL,
+    price numeric(10,2) NOT NULL,
+    available boolean NOT NULL,
     CONSTRAINT products_pkey PRIMARY KEY (id)
 );
 
 DROP TABLE IF EXISTS restaurant.restaurant_products CASCADE;
 
-CREATE TABLE restaurant.restaurant_products (
+CREATE TABLE restaurant.restaurant_products
+(
     id uuid NOT NULL,
     restaurant_id uuid NOT NULL,
     product_id uuid NOT NULL,
@@ -47,18 +51,18 @@ CREATE TABLE restaurant.restaurant_products (
 );
 
 ALTER TABLE restaurant.restaurant_products
-  ADD CONSTRAINT "FK_RESTAURANT_ID" FOREIGN KEY (restaurant_id)
-  REFERENCES restaurant.restaurants (id) MATCH SIMPLE
-  ON UPDATE NO ACTION
-  ON DELETE RESTRICT
-  NOT VALID;
+    ADD CONSTRAINT "FK_RESTAURANT_ID" FOREIGN KEY (restaurant_id)
+    REFERENCES restaurant.restaurants (id) MATCH SIMPLE
+    ON UPDATE NO ACTION
+    ON DELETE RESTRICT
+    NOT VALID;
 
 ALTER TABLE restaurant.restaurant_products
-  ADD CONSTRAINT "FK_PRODUCT_ID" FOREIGN KEY (product_id)
-  REFERENCES restaurant.products (id) MATCH SIMPLE
-  ON UPDATE NO ACTION
-  ON DELETE RESTRICT
-  NOT VALID;
+    ADD CONSTRAINT "FK_PRODUCT_ID" FOREIGN KEY (product_id)
+    REFERENCES restaurant.products (id) MATCH SIMPLE
+    ON UPDATE NO ACTION
+    ON DELETE RESTRICT
+    NOT VALID;
 
 DROP MATERIALIZED VIEW IF EXISTS restaurant.order_restaurant_m_view;
 
@@ -72,28 +76,28 @@ AS
     p.name AS product_name,
     p.price AS product_price,
     p.available AS product_available
- FROM restaurant.restaurants r,
-      restaurant.products p,
-      restaurant.restaurant_products rp
- WHERE r.id = rp.restaurant_id AND p.id = rp.product_id;
+   FROM restaurant.restaurants r,
+    restaurant.products p,
+    restaurant.restaurant_products rp
+  WHERE r.id = rp.restaurant_id AND p.id = rp.product_id
 WITH DATA;
 
-REFRESH MATERIALIZED VIEW restaurant.order_restaurant_m_view;
+refresh materialized VIEW restaurant.order_restaurant_m_view;
 
-DROP FUNCTION IF EXISTS restaurant.refresh_order_restaurant_m_view;
+DROP function IF EXISTS restaurant.refresh_order_restaurant_m_view;
 
-CREATE OR REPLACE FUNCTION restaurant.refresh_order_restaurant_m_view()
-RETURNS trigger
+CREATE OR replace function restaurant.refresh_order_restaurant_m_view()
+returns trigger
 AS '
 BEGIN
-    REFRESH MATERIALIZED VIEW restaurant.order_restaurant_m_view;
-    RETURN null;
+    refresh materialized VIEW restaurant.order_restaurant_m_view;
+    return null;
 END;
-' LANGUAGE plpgsql;
+'  LANGUAGE plpgsql;
 
-DROP TRIGGER IF EXISTS refresh_order_restaurant_m_view ON restaurant.restaurant_products;
+DROP trigger IF EXISTS refresh_order_restaurant_m_view ON restaurant.restaurant_products;
 
-CREATE TRIGGER refresh_order_restaurant_m_view
-AFTER INSERT OR UPDATE OR DELETE OR TRUNCATE
-ON restaurant.restaurant_products FOR EACH STATEMENT
+CREATE trigger refresh_order_restaurant_m_view
+after INSERT OR UPDATE OR DELETE OR truncate
+ON restaurant.restaurant_products FOR each statement
 EXECUTE PROCEDURE restaurant.refresh_order_restaurant_m_view();

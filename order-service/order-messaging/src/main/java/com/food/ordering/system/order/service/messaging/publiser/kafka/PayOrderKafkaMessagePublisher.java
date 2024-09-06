@@ -26,7 +26,7 @@ public class PayOrderKafkaMessagePublisher implements OrderPaidRestaurantRequest
     @Override
     public void publish(OrderPaidEvent domainEvent) {
 
-        String orderId = domainEvent.getOrder().getId().toString();
+        String orderId = domainEvent.getOrder().getId().getValue().toString();
         log.info("Received OrderPaidEvent created event for order id: {}", orderId);
         try {
 

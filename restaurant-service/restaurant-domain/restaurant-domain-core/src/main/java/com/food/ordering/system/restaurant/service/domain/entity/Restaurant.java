@@ -23,7 +23,7 @@ public class Restaurant extends AggregateRoot<RestaurantId> {
         .map(product -> {
           if (!product.isAvailable()) {
             failureMessages.add(
-                "Product with id: " + product.getId().getValue() + "is not available: ");
+                "Product with id: " + product.getId().getValue() + " is not available: ");
           }
           return product.getPrice().multiply(product.getQuantity());
         }).reduce(Money.ZERO, Money::add);

@@ -25,7 +25,7 @@ public class OrderRejectedKafkaMessagePublisher implements OrderRejectedMessageP
   @Override
   public void publish(OrderRejectedEvent orderRejectedEvent) {
     String orderId = orderRejectedEvent.getOrderApproval().getOrderId().getValue().toString();
-    log.info("Received OrderApprovedEvent for order id: {}", orderId);
+    log.info("Received OrderRejectedEvent for order id: {}", orderId);
 
     try {
       RestaurantApprovalResponseAvroModel restaurantApprovalResponseAvroModel = restaurantMessagingDataMapper
